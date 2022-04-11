@@ -1,4 +1,5 @@
 baseurl: "/"
+url: "https://boba.is-a.dev"
 permalink: pretty
 title: "The Pearl"
 collections_dir: collections
