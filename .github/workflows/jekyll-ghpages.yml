@@ -1,0 +1,41 @@
+name: Jekyll site CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: npm install
+      
+    - name: Update baseurl in _config.yaml
+      uses: fjogeleit/yaml-update-action@master
+      with:
+        valueFile: '_config.yml'
+        propertyPath: 'baseurl'
+        value: /jekyll-atlantic-theme/
+        commitChange: false
+        updateFile: true
+      
+    - name: Build the site in the jekyll/builder container
+      env:
+        NODE_ENV: production
+      run: |
+        docker run \
+        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
+        
+    - name: GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v2.5.0
+      with:
+       build_dir: _site/
+      env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
